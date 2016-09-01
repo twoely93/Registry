@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Microsoft.Win32;  // 레지스트리 관련 함수사용
+using Excel = Microsoft.Office.Interop.Excel;
+// Excel Application 사용, 프로젝트-참조추가-COM-Microsoft.Excel 추가
 using System.Runtime.InteropServices;   // 시스템 API 호출 시 필요
 using System.IO;    // 시스템 입출력
 
@@ -14,6 +16,7 @@ namespace RegTest1_2
 {
     public partial class Form1 : Form
     {
+        int[] log_Time = {};
         public Form1()
         {
             InitializeComponent();
@@ -160,7 +163,7 @@ namespace RegTest1_2
         {
             RegLogViewer.Items.Clear();
             // registryKey 값에 최하위 키값 상위 경로 지정
-            String[] registryKey = 
+            String[] registryKey =
                 {
                     /*0*/ @"SYSTEM\ControlSet001\Control\DeviceClasses\{10497B1B-BA51-44E5-8318-A65C837B6661}",
                     /*1*/ @"SYSTEM\ControlSet001\Control\DeviceClasses\{53F56307-B6BF-11D0-94F2-00A0C91EFB8B}",
@@ -199,7 +202,7 @@ namespace RegTest1_2
                         RegLogViewer.Items.Add("Value : " + valName);
                         RegLogViewer.Items.Add("\n");
 
-                        EXIT:;
+                    EXIT:;
                     }
 
                 }
@@ -264,17 +267,17 @@ namespace RegTest1_2
             String registryKey = @"SYSTEM\ControlSet001\Enum\USB";
 
             // Win32 API를 사용해 RegistryKey 값에 접근 최하위 키값 상위 경로까지
-                using (Microsoft.Win32.RegistryKey Key = Registry.LocalMachine.OpenSubKey(registryKey))
+            using (Microsoft.Win32.RegistryKey Key = Registry.LocalMachine.OpenSubKey(registryKey))
+            {
+                // foreach문 최하위 키값의 상위 경로에서 최하위 키값의 이름을 subkeyName에 저장
+                foreach (String subkeyName in Key.GetSubKeyNames())
                 {
-                    // foreach문 최하위 키값의 상위 경로에서 최하위 키값의 이름을 subkeyName에 저장
-                    foreach (String subkeyName in Key.GetSubKeyNames())
-                    {
-                        // 서브키 값 ListBox에 출력
-                        RegLogViewer.Items.Add("SubKey : " + subkeyName);
-
-                    }
+                    // 서브키 값 ListBox에 출력
+                    RegLogViewer.Items.Add("SubKey : " + subkeyName);
 
                 }
+
+            }
         }   //완료
 
         private void USERNAME_Click(object sender, EventArgs e)
@@ -303,7 +306,7 @@ namespace RegTest1_2
         {
             RegLogViewer.Items.Clear();
             // registryKey 값에 최하위 키값 상위 경로 지정
-            String[] registryKey = 
+            String[] registryKey =
                 {
                     /*1*/ @"SYSTEM\ControlSet001\Control\DeviceClasses\{10497B1B-BA51-44E5-8318-A65C837B6661}",
                     /*2*/ @"SOFTWARE\Microsoft\Windows Portable Devices\Devices"
@@ -324,6 +327,7 @@ namespace RegTest1_2
                     {
                         // 서브키 값 ListBox에 출력
                         RegLogViewer.Items.Add("SubKey : " + subkeyName);
+                        
                         // 저장된 최하위 키값 경로까지 접근
                         RegistryKey Val = Key.OpenSubKey(subkeyName);
 
@@ -332,12 +336,74 @@ namespace RegTest1_2
 
                         RegLogViewer.Items.Add("Value : " + valName);
                         RegLogViewer.Items.Add("\n");
+                        //log_Time[i] = Convert.ToInt32(valName);
+
                     }
 
                 }
             }
+
         }   //완료
 
+        private void LOG_SAVE_Click(object sender, EventArgs e)
+        {
+            //List<string> testData = new List<string>()
+            //{ "Excel", "Access", "Word", "OneNote" };
+            
+            Excel.Application excelApp = null;
+            Excel.Workbook wb = null;
+            Excel.Worksheet ws = null;
+
+            try
+            {
+                // Excel 첫번째 워크시트 가져오기                
+                excelApp = new Excel.Application();
+                wb = excelApp.Workbooks.Add();
+                ws = wb.Worksheets.get_Item(1) as Excel.Worksheet;
+
+                // 데이타 넣기
+                int r = 1;
+                foreach (var log in log_Time)
+                {
+                    ws.Cells[r, 1] = log;
+                    r++;
+                }
+
+                // 엑셀파일 저장
+                wb.SaveAs(@"F:\Test\test.xls", Excel.XlFileFormat.xlWorkbookNormal);
+                wb.Close(true);
+                excelApp.Quit();
+            }
+            finally
+            {
+                // Clean up
+                ReleaseExcelObject(ws);
+                ReleaseExcelObject(wb);
+                ReleaseExcelObject(excelApp);
+            }
+        }
+
+        private static void ReleaseExcelObject(object obj)
+        {
+            try
+            {
+                if (obj != null)
+                {
+                    Marshal.ReleaseComObject(obj);
+                    obj = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                obj = null;
+                throw ex;
+            }
+            finally
+            {
+                GC.Collect();
+            }
+        }
 
     }
+    
 }

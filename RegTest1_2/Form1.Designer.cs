@@ -34,6 +34,7 @@
             this.VIPI = new System.Windows.Forms.Button();
             this.USERNAME = new System.Windows.Forms.Button();
             this.ConnectT = new System.Windows.Forms.Button();
+            this.LOG_SAVE = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // ClassID
@@ -95,11 +96,22 @@
             this.ConnectT.UseVisualStyleBackColor = true;
             this.ConnectT.Click += new System.EventHandler(this.ConnectT_Click);
             // 
+            // LOG_SAVE
+            // 
+            this.LOG_SAVE.Location = new System.Drawing.Point(215, 154);
+            this.LOG_SAVE.Name = "LOG_SAVE";
+            this.LOG_SAVE.Size = new System.Drawing.Size(159, 23);
+            this.LOG_SAVE.TabIndex = 6;
+            this.LOG_SAVE.Text = "로그파일저장";
+            this.LOG_SAVE.UseVisualStyleBackColor = true;
+            this.LOG_SAVE.Click += new System.EventHandler(this.LOG_SAVE_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1366, 168);
+            this.ClientSize = new System.Drawing.Size(1366, 187);
+            this.Controls.Add(this.LOG_SAVE);
             this.Controls.Add(this.ConnectT);
             this.Controls.Add(this.USERNAME);
             this.Controls.Add(this.VIPI);
@@ -120,6 +132,7 @@
         private System.Windows.Forms.Button VIPI;
         private System.Windows.Forms.Button USERNAME;
         private System.Windows.Forms.Button ConnectT;
+        private System.Windows.Forms.Button LOG_SAVE;
     }
 }
 
